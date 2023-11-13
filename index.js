@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from './middleware/logger.js';
 import userRouter from './routes/user.js';
 import recipeRouter from './routes/recipe.js';
+import mongoose from 'mongoose';
 
 // configure dotenv
 dotenv.config();
@@ -31,7 +32,7 @@ app.use(logger);
 
 // use routes
 app.use(userRouter);
-app.use(recipeRouter);
+// app.use(recipeRouter);
 
 // error
 app.use((err, req, res, next) => {
@@ -45,6 +46,17 @@ app.use('*', (req, res) => {
 });
 
 // listen
-app.listen(PORT, () => {
-  console.log(`Server is up and running on port : ${PORT}`);
-});
+
+// connection to mongodb
+const connectToDB = async () => {
+  try {
+    await mongoose.connect(process.env.CONNECTION_URI);
+    console.log('Connect to database successfully');
+    app.listen(PORT, () => {
+      console.log(`Server is up and running on port : ${PORT}`);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
+connectToDB();
