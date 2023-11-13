@@ -1,10 +1,9 @@
-import Recipes from '../models/recipe.js';
+import Recipe from '../models/recipe.js';
 
 const recipeControllers = {
   getRecipes: async (req, res) => {
     try {
-      const recipesQuery = `SELECT *FROM recipes;`;
-      const result = await query(recipesQuery);
+      const result = await Recipe.find();
       if (result.length > 0) {
         res.status(200).json({
           success: true,
@@ -26,10 +25,9 @@ const recipeControllers = {
   getRecipe: async (req, res) => {
     try {
       const { id } = req.params;
-      const recipeQuery = `SELECT * FROM recipes WHERE id=?;`;
-      const result = await query(recipeQuery, [id]);
+      const result = await Recipe.findOne({ _id: id });
       console.log(result);
-      if (result.length > 0) {
+      if (result) {
         return res.status(200).json({
           success: true,
           recipe: result
@@ -56,11 +54,13 @@ const recipeControllers = {
           message: 'Please end the required data'
         });
       } else {
-        const recipeQuery = `INSERT INTO recipes(name, description) VALUES (?, ?);`;
-        const result = await query(recipeQuery, [name, description]);
+        const result = await Recipe.create({
+          name: name,
+          description: description
+        });
         return res.status(201).json({
           success: true,
-          recipe: { id: result.insertId, name, description }
+          recipe: result
         });
       }
     } catch (err) {
@@ -80,14 +80,8 @@ const recipeControllers = {
           message: 'Please, added the required data'
         });
       }
-      const recipeQuery = `
-      UPDATE recipes SET 
-      name=?, 
-      description=? 
-      WHERE id=?;
-      `;
-      const result = await query(recipeQuery, [name, description, id]);
-      if (result.affectedRows > 0) {
+      const result = await Recipe.updateOne({ _id: id }, { name, description });
+      if (result.modifiedCount > 0) {
         return res.status(201).json({
           success: true,
           message: 'Recipe updated successfully'
@@ -108,10 +102,9 @@ const recipeControllers = {
   deleteRecipe: async (req, res) => {
     try {
       const { id } = req.params;
-      const recipeQuery = `DELETE FROM recipes WHERE id=?;`;
-      const result = await query(recipeQuery, { id });
+      const result = await Recipe.deleteOne({ _id: id });
       console.log(result.affectedRows);
-      if (result.affectedRows > 0) {
+      if (result.deletedCount > 0) {
         return res.status(200).json({
           success: true,
           message: 'The recipe has been successfully deleted'

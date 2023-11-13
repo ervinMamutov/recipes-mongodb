@@ -32,7 +32,7 @@ app.use(logger);
 
 // use routes
 app.use(userRouter);
-// app.use(recipeRouter);
+app.use(recipeRouter);
 
 // error
 app.use((err, req, res, next) => {
