@@ -1,18 +1,8 @@
-import query from '../config/db.js';
+import mongoose from 'mongoose';
 
-const createUser = async () => {
-  try {
-    const createUserTable = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      email VARCHAR(50) NOT NULL UNIQUE,
-      password TEXT NOT NULL
-    );`;
-    const result = await query(createUserTable);
-    console.log(`The user table created successfully`);
-  } catch (err) {
-    console.error(err);
-  }
-};
+const userSchema = new mongoose.Schema({
+  email: { type: String, unique: true, require: true },
+  password: { type: String, require: true }
+});
 
-createUser();
+export default mongoose.model('User', userSchema);
