@@ -1,5 +1,4 @@
-import query from '../config/db.js';
-import '../models/recipe.js';
+import Recipes from '../models/recipe.js';
 
 const recipeControllers = {
   getRecipes: async (req, res) => {
