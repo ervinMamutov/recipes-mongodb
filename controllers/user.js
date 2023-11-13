@@ -34,7 +34,7 @@ const userControllers = {
         // create new user
         const user = await User.create({
           email,
-          message: `User with ${email} has been created`
+          password: hashedPassword
         });
         res.status(201).json({
           success: true,
@@ -48,19 +48,20 @@ const userControllers = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      const userExist = User.findOne({ email: email });
+      const userExist = await User.findOne({ email: email });
+
       if (userExist) {
-        console.log(userExist);
-        const isValid = await bcrypt.compare(password, user.password);
+        console.log(userExist.password);
+        const isValid = await bcrypt.compare(password, userExist.password);
         if (isValid) {
           // generate token
           const token = jwt.sign(
-            { user: user },
+            { userExist: userExist },
             process.env.TOKEN_ACCESS_SECRET
           );
 
           // set cookies
-          res.cookie('id', user.id, {
+          res.cookie('_id', userExist._id, {
             secure: true,
             sameSite: 'None'
           });
@@ -74,7 +75,7 @@ const userControllers = {
           res.status(200).json({
             success: true,
             token,
-            id: user.id
+            id: userExist._id
           });
         } else {
           return res
