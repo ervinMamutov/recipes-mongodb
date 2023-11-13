@@ -1,18 +1,8 @@
-import query from '../config/db.js';
+import mongoose, { Schema } from 'mongoose';
 
-const createRecipe = async () => {
-  try {
-    const createRecipeTable = `
-    CREATE TABLE IF NOT EXISTS recipes (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      name VARCHAR(50) NOT NULL,
-      description TEXT NOT NULL
-    );`;
-    const result = await query(createRecipeTable);
-    console.log('Recipe tables create successfully');
-  } catch (err) {
-    console.error(err);
-  }
-};
+const recipeSchema = new mongoose.Schema({
+  name: { type: String, require: true },
+  description: { type: String, require: true }
+});
 
-createRecipe();
+export default mongoose.model('Recipe', recipeSchema);
