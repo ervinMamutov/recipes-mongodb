@@ -5,18 +5,15 @@ import validateEmail from '../utils/validateEmail.js';
 import validatePassword from '../utils/validatePassword.js';
 import matchPasswords from '../utils/matchPasswords.js';
 import hashPassword from '../utils/hashPassword.js';
-import query from '../config/db.js';
-import '../models/user.js';
+import User from '../models/user.js';
 
 const userControllers = {
   register: async (req, res) => {
     try {
       const { email, password, rePassword } = req.body;
 
-      const userQuery = `SELECT * FROM users WHERE email=?`;
-      const result = await query(userQuery, [email]);
-
-      if (result.length > 0) {
+      const userExist = await User.findOne({ email });
+      if (userExist) {
         return res
           .status(400)
           .json({ success: false, message: 'Email is already exist ' });
@@ -35,11 +32,10 @@ const userControllers = {
         const hashedPassword = hashPassword(password);
 
         // create new user
-        const createUserQuery = `INSERT INTO users(email, password) VALUES (?, ?);`;
-        const addUserResult = await query(createUserQuery, [
+        const user = await User.create({
           email,
-          hashedPassword
-        ]);
+          message: `User with ${email} has been created`
+        });
         res.status(201).json({
           success: true,
           message: `User with email: ${email} has been created`
@@ -52,10 +48,9 @@ const userControllers = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      const userQuery = `SELECT * FROM users WHERE email=?`;
-      const result = await query(userQuery, [email]);
-      if (result.length > 0) {
-        const user = result[0];
+      const userExist = User.findOne({ email: email });
+      if (userExist) {
+        console.log(userExist);
         const isValid = await bcrypt.compare(password, user.password);
         if (isValid) {
           // generate token
